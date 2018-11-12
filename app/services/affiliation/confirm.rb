@@ -19,7 +19,8 @@ class Affiliation::Confirm
       @error = "Affiliation does not belong to you"
       false
     else
-      affiliation.update_attributes(status: :active, token: nil)
+      affiliation.update(status: :active,
+                         token: Affiliation.generate_unique_secure_token)
     end
   end
 end
