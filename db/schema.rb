@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_05_143939) do
+ActiveRecord::Schema.define(version: 2018_12_07_103126) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -247,6 +247,7 @@ ActiveRecord::Schema.define(version: 2018_12_05_143939) do
     t.text "activate_message"
     t.string "slug"
     t.string "service_type"
+    t.string "status"
     t.index ["description"], name: "index_services_on_description"
     t.index ["owner_id"], name: "index_services_on_owner_id"
     t.index ["provider_id"], name: "index_services_on_provider_id"

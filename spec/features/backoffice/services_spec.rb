@@ -90,6 +90,7 @@ RSpec.feature "Services in backoffice" do
     expect(page).to have_content(research_area.name)
     expect(page).to have_content(target_group.name)
     expect(page).to have_content(category.name)
+    expect(page).to have_content("Publish")
   end
 
   scenario "I can edit owned service" do
