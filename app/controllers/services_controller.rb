@@ -14,6 +14,7 @@ class ServicesController < ApplicationController
     @research_areas = research_areas
     @related_platform_options = related_platform_options
     @tag_options = tag_options
+    @active_filters = active_filters
   end
 
   def show

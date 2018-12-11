@@ -1,6 +1,10 @@
 %h5.text-uppercase.underline-light.mb-2.pb-2
   Filters
 .row
+  - active_filters.each do |label, params|
+    .col-md-12
+      = link_to label, params.permit!
+.row
   .col-md-12
     - if controller.filters_on?
       .x-small.mb-3.mt-1

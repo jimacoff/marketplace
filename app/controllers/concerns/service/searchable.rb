@@ -15,9 +15,17 @@ module Service::Searchable
           where("service_related_platforms.platform_id IN (?)", search_value)
     end
 
+    def options_related_platforms
+      []
+    end
+
     def filter_location(services, search_value)
       # TODO filter by parameter
       services
+    end
+
+    def options_location
+      []
     end
 
     def filter_target_groups(services, search_value)
@@ -25,8 +33,16 @@ module Service::Searchable
           where("service_target_groups.target_group_id IN (?)", search_value)
     end
 
+    def options_target_groups
+      []
+    end
+
     def filter_rating(services, search_value)
       services.where("rating >= ?", search_value)
+    end
+
+    def options_rating
+      []
     end
 
     def filter_providers(services, search_value)
@@ -34,28 +50,50 @@ module Service::Searchable
           .where("service_providers.provider_id IN (?)", search_value)
     end
 
+    def options_providers(category = nil)
+      query = Provider.select("providers.name, providers.id, count(service_providers.service_id) as service_count")
+
+      if category.nil?
+        query = query.joins(:services)
+      else
+        query = query.joins(:categories).where("categories.id = ?", category.id)
+      end
+
+      query.group("providers.id")
+          .order(:name)
+          .map {|provider| [provider.name, provider.id, provider.service_count]}
+    end
+
     def filter_research_area(services, search_value)
       research_area = ResearchArea.find_by(id: search_value)
       if research_area
         ids = [research_area.id] + research_area.descendant_ids
         services.joins(:service_research_areas).
-            where(service_research_areas: { research_area_id: ids })
+            where(service_research_areas: {research_area_id: ids})
       end
+    end
+
+    def options_research_area
+      []
     end
 
     def filter_tag(services, tags)
       services.tagged_with(tags)
     end
 
+    def options_tag
+      []
+    end
+
     def filters_on?
-      searchable_fields.any? { |f| params[f].present? }
+      searchable_fields.any? {|f| params[f].present?}
     end
   end
 
 
   include FieldFilterable
 
-private
+  private
 
   def research_areas
     research_areas_tree(ResearchArea.all, ResearchArea.new, 0)
@@ -63,12 +101,12 @@ private
 
   def research_areas_tree(research_areas, parent, level)
     research_areas.
-      select { |ra| ra.ancestry_depth == level && ra.child_of?(parent) }.
-      map do |ra|
-        [[indented_name(ra.name, level), ra.id],
-         *research_areas_tree(research_areas, ra, level + 1)]
-      end.
-      flatten(1)
+        select {|ra| ra.ancestry_depth == level && ra.child_of?(parent)}.
+        map do |ra|
+      [[indented_name(ra.name, level), ra.id],
+       *research_areas_tree(research_areas, ra, level + 1)]
+    end.
+        flatten(1)
   end
 
   def indented_name(name, level)
@@ -87,7 +125,7 @@ private
 
     query.group("target_groups.id")
         .order(:name)
-        .map { |target_group| [target_group.name, target_group.id, target_group.service_count] }
+        .map {|target_group| [target_group.name, target_group.id, target_group.service_count]}
   end
 
   def provider_options(category = nil)
@@ -101,7 +139,7 @@ private
 
     query.group("providers.id")
         .order(:name)
-        .map { |provider| [provider.name, provider.id, provider.service_count] }
+        .map {|provider| [provider.name, provider.id, provider.service_count]}
   end
 
   def rating_options(category = nil)
@@ -123,27 +161,26 @@ private
     end
 
     query.group("platforms.id")
-         .order(:name)
-         .map { |provider| [provider.name, provider.id, provider.service_count] }
+        .order(:name)
+        .map {|provider| [provider.name, provider.id, provider.service_count]}
   end
 
   def tag_options
     ActsAsTaggableOn::Tag.all.
-      map { |t| [t.name, t.name] }.
-      sort { |x, y| x[0] <=> y[0] }
+        map {|t| [t.name, t.name]}.
+        sort {|x, y| x[0] <=> y[0]}
   end
 
   def records
-    searchable_fields.
-        select { |field| params[field].present? }.
-        inject(search_scope) { |filtered_services, field| filter_by_field(filtered_services, field) }
+    active_searchable_fields.
+        inject(search_scope) {|filtered_services, field| filter_by_field(filtered_services, field)}
   end
 
   def searchable_fields
     FieldFilterable.public_instance_methods.
         map(&:to_s).
-        select { |m| m.start_with?("filter_") }.
-        map { |m| m.delete_prefix("filter_") }
+        select {|m| m.start_with?("filter_")}.
+        map {|m| m.delete_prefix("filter_")}
   end
 
   def filter_by_field(elements, field)
@@ -164,5 +201,24 @@ private
 
   def scope
     policy_scope(Service).with_attached_logo
+  end
+
+  def active_searchable_fields
+    searchable_fields.select {|field| params[field].present?}
+  end
+
+  def active_filters
+    active_searchable_fields
+        .map { |field| params[field].is_a?(Array) ? [field, params[field]] : [field, [params[field]]] }
+        .map do |field, field_params|
+          [field, self.send("options_#{field}").find do |name, id, count|
+            !field_params.find { |value| value == id.to_s }.nil?
+          end]
+        end
+        .reject { |field, options| options.nil? }
+        .map { |field, options| [field, options[0], options[1], options[2]] }
+        .map do |field, name, id, count|
+          [name, params.except(field)]
+        end
   end
 end
