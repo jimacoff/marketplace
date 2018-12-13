@@ -465,20 +465,20 @@ textarea {
 
     &.current {
       &::before {
-        border-left: 2px solid $secondary;
+        border-left: 2px solid $palette-gray-30;
       }
 
       &::after {
         content: '';
         padding-top: 1px;
-        width: 19px;
-        height: 18px;
+        width: 22px;
+        height: 22px;
         top: 2px;
-        left: -9px;
+        left: -10px;
         font-size: 14px;
         text-align: center;
-        border: 2px solid $secondary;
-        background-color: $white;
+        border: 4px solid $white;
+        background-color: $secondary;
       }
     }
 
@@ -494,7 +494,7 @@ textarea {
     position: absolute;
     left: -70px;
     line-height: 1.4;
-    text-align: center;
+    font-size: 11px;
     padding-top: 4px;
     width: 50px;
   }
@@ -1125,13 +1125,13 @@ Filters
   dl {
     display: table;
     width: 100%;
-    margin: 0 0 7px;
+    margin: 0 0 8px;
   }
 
   dt,
   dd {
     display: table-cell;
-    padding: 0 0 7px;
+    padding: 0 0 8px;
     border-bottom: 1px solid $palette-solid-10;
   }
 
@@ -1145,7 +1145,7 @@ Filters
 
   dt {
     font-weight: 300;
-    width: 40%;
+    width: 33%;
   }
 
   dt::after,
@@ -1158,6 +1158,11 @@ Filters
   .list-inline-item svg {
     font-size: 32px !important;
   }
+}
+
+.progress-box {
+  max-height: 315px;
+  overflow-y: auto;
 }
 
 //scss-lint:disable QualifyingElement
