@@ -1109,6 +1109,51 @@ Filters
   }
 }
 
+.back-link {
+  svg {
+    color: $palette-gray-30;
+  }
+
+  a {
+    font-size: 13px;
+    color: $palette-blue;
+  }
+}
+
+.details {
+
+  dl {
+    display: table;
+    width: 100%;
+    margin: 0 0 7px;
+  }
+
+  dt,
+  dd {
+    display: table-cell;
+    padding: 0 0 7px;
+    border-bottom: 1px solid $palette-solid-10;
+  }
+
+  dd {
+    font-weight: bold;
+
+    a {
+      color: $body-color;
+    }
+  }
+
+  dt {
+    font-weight: 300;
+    width: 40%;
+  }
+
+  dt::after,
+  dd::after {
+    clear: both;
+  }
+}
+
 @media (max-width: 768px) {
   .list-inline-item svg {
     font-size: 32px !important;
