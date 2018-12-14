@@ -4,7 +4,6 @@ require "elasticsearch/model"
 
 class Service < ApplicationRecord
   include Elasticsearch::Model
-  include Elasticsearch::Model::Callbacks
 
   extend FriendlyId
   friendly_id :title, use: :slugged
@@ -83,6 +82,30 @@ class Service < ApplicationRecord
 
   def set_first_category_as_main!
     service_categories.first&.update_attributes(main: true)
+  end
+
+  after_commit on: [:create] do
+    __elasticsearch__.index_document if self.published?
+  end
+
+  before_update do
+    @status_was = self.status_was
+  end
+
+  after_commit on: [:update] do
+    if self.published?
+      if @status_was == :published
+        __elasticsearch__.update_document
+      else
+        __elasticsearch__.index_document
+      end
+    else
+      __elasticsearch__.delete_document
+    end
+  end
+
+  after_commit on: [:destroy] do
+    __elasticsearch__.delete_document if self.published?
   end
 
   private
