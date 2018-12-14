@@ -27,8 +27,8 @@ class Backoffice::ServicePolicy < ApplicationPolicy
     owner?
   end
 
-  def published?
-    owner? && !record.status == "draft"
+  def publish?
+    owner? && !record.published?
   end
 
   def destroy?
