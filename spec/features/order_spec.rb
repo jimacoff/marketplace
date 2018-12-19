@@ -219,6 +219,7 @@ RSpec.feature "Service ordering" do
 
     # Not sure why this is not working: ActionController::UnknownFormat
     # error is thrown when trying to click "Add new project button.
+    # Ther are returned html format not js
     # TODO: discover why
     #
     # scenario "I can create new project on order configuration view" do

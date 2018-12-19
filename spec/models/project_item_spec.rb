@@ -12,6 +12,7 @@ RSpec.describe ProjectItem do
   it { should validate_presence_of(:customer_typology) }
   it { should validate_presence_of(:access_reason) }
 
+
   it { should belong_to(:project) }
   it { should belong_to(:affiliation) }
   it { should belong_to(:offer) }
@@ -68,5 +69,25 @@ RSpec.describe ProjectItem do
       expect(build(:project_item, status: :ready)).to_not be_active
       expect(build(:project_item, status: :rejected)).to_not be_active
     end
+  end
+
+  describe "if research" do
+    before { allow(subject).to receive(:research?) { true } }
+
+    it { is_expected.to validate_presence_of(:user_group_name) }
+  end
+
+  describe "if project" do
+    before { allow(subject).to receive(:project?) { true } }
+
+    it { is_expected.to validate_presence_of(:project_name) }
+    it { is_expected.to validate_presence_of(:project_website_url) }
+  end
+
+  describe "if private_company" do
+    before { allow(subject).to receive(:private_company?) { true } }
+
+    it { is_expected.to validate_presence_of(:company_name) }
+    it { is_expected.to validate_presence_of(:company_website_url) }
   end
 end
